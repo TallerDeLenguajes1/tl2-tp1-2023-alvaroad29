@@ -35,6 +35,11 @@ public class Cadete
     {
         return pedidos.Count;
     }
+
+    public int CantPedidosEntregados()
+    {
+        return pedidos.Count(pedido => pedido.Estado == enumEstado.entregado);
+    }
     public void EliminarPedido(int nro)
     {
         for (int i = 0; i < pedidos.Count; i++)
@@ -58,27 +63,22 @@ public class Cadete
         }
     }
 
+    public Pedido DevolverPedido(int idPedido)
+    {
+        return pedidos.SingleOrDefault(pedido => pedido.Nro == idPedido);
+    }
+
     public float JornalACobrar()
     {
-        int entregados = 0;
-
-        foreach (var item in pedidos)
-        {
-            if (item.Estado == enumEstado.entregado)
-            {
-                entregados++;
-            }
-        }
-        return entregados * 500;
+        return pedidos.Count(pedido => pedido.Estado == enumEstado.entregado) * 500;
     }
 
     public void mostrarCadete()
     {
         
-        System.Console.WriteLine("Nombre: " + Nombre);
-        System.Console.WriteLine("Id cadete " + Id);
-        System.Console.WriteLine("Direccion: " + Direccion);
-        System.Console.WriteLine("Telefono: " + Telefono);
+        System.Console.WriteLine($"ID: {Id} -- Nombre: {Nombre} --  ");
+        // System.Console.WriteLine("Direccion: " + Direccion);
+        // System.Console.WriteLine("Telefono: " + Telefono);
     }
 
     public void MostrarPedidos()
@@ -86,17 +86,28 @@ public class Cadete
         System.Console.WriteLine("Info cadete");
         mostrarCadete();
         System.Console.WriteLine("Info pedidos");
-        foreach (var item in pedidos)
+        foreach (var item in pedidos) // solo muestro pedidos en estado pendiente
         {
-            item.MostrarPedido();
+            if (item.Estado == enumEstado.pendiente)
+            {
+                item.MostrarPedido();
+            }
         }
     }
 
-    public Pedido DevolverPedido(int id)
+    public void MostrarPedidosPendientes()
     {
-        return pedidos.SingleOrDefault(pedido => pedido.Nro == id);
+        System.Console.WriteLine("Info cadete");
+        mostrarCadete();
+        System.Console.WriteLine("Info pedidos");
+        foreach (var item in pedidos)
+        {
+            if (item.Estado == enumEstado.pendiente)
+            {
+                item.MostrarPedido();
+            }
+        }
     }
-
     //metodos publicos o privados con mayuscula
     //todo los atributos publicos con mayuscula
 }

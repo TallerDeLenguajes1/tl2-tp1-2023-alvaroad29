@@ -18,10 +18,11 @@ public class Pedido
 
     // Metodos
 
+    private static int numPedido = 1;
     public Pedido(string obs, string nombre, string direccion, string telefono, string datosReferenciaDireccion) // constructor
     {
         Estado = enumEstado.pendiente;
-        Nro += 1;
+        Nro = numPedido++;
         Obs = obs;
         cliente = new Cliente(nombre, direccion, telefono, datosReferenciaDireccion);
     }
@@ -47,8 +48,6 @@ public class Pedido
 
     public void MostrarPedido()
     {
-        System.Console.WriteLine("Numero de pedido: " + Nro);
-        System.Console.WriteLine("Observaciones: " + Obs);
-        System.Console.WriteLine("Estado pedido: " + Estado);
+        System.Console.WriteLine($"Numero de pedido: {Nro} -- Observaciones: {Obs} -- Estado: {Estado}");
     }
 }
