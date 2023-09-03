@@ -9,17 +9,33 @@ internal class Program
     private static void Main(string[] args)
     {
         // cargo los datos
-        AccesoDatos cargarDatos = new AccesoDatos(); // para cargar los datos
+        AccesoADatos cargarDatos; 
+        Cadeteria cadeteria = null; 
+        int op2;
+        do
+        {
+            System.Console.WriteLine("Cargar datos desde: [1] CSV / [2] JSON");
+        } while (!int.TryParse(Console.ReadLine(),out op2) || op2 < 1 || op2 > 2);
 
-        Cadeteria cadeteria = cargarDatos.cargarCadeteria("infoCadeteria.csv"); // cargo datos sobre cadeteria
-        cadeteria = cargarDatos.cargarCadetes("infoCadetes.csv",cadeteria); // cargo los datos de cadetes
+        switch (op2)
+        {
+            case 1:
+                cargarDatos = new AccesoCSV(); // para cargar los datos
+                cadeteria = cargarDatos.cargarCadeteria("infoCadeteria.csv"); // cargo datos sobre cadeteria
+                cadeteria = cargarDatos.cargarCadetes("infoCadetes.csv",cadeteria); // cargo los datos de cadetes
+                break;
+            case 2:
+                cargarDatos = new AccesoJSON(); 
+                cadeteria = cargarDatos.cargarCadeteria("infoCadeteria.json"); 
+                cadeteria = cargarDatos.cargarCadetes("infoCadetes.json",cadeteria); 
+                break;
+        }
 
-        //List<Pedido> pedidosTomados = new List<Pedido>();
+
+
         Pedido pedido = null;
         Cadete cadete;
-        
         string nombre,direccion,telefono,datosReferencia,obs;
-        // interfaz
 
         int op = 0,  idCadete = 0, idCadete2 = 0, idPedido = 0;
         do
@@ -29,11 +45,12 @@ internal class Program
                 Console.WriteLine("<><><><><><><><><><><><><><><><><><><><><><><>");
                 Console.WriteLine("<>   Ingrese la operacion a realizar:       <>");
                 Console.WriteLine("<>   0-Salir                                <>");
-                Console.WriteLine("<>   1-Dar alta pedido                      <>");
-                Console.WriteLine("<>   2-Cambiar estado pedido                <>");
-                Console.WriteLine("<>   3-Reasignar pedido                     <>");
+                Console.WriteLine("<>   1-Agregar pedido                       <>");
+                Console.WriteLine("<>   2-Asignar pedido                       <>");
+                Console.WriteLine("<>   3-Cambiar estado pedido                <>");
+                Console.WriteLine("<>   4-Reasignar pedido                     <>");
                 Console.WriteLine("<><><><><><><><><><><><><><><><><><><><><><><>");
-            } while (!int.TryParse(Console.ReadLine(),out op) || op < 0 || op > 3);
+            } while (!int.TryParse(Console.ReadLine(),out op) || op < 0 || op > 4);
 
             switch (op)
             {
@@ -52,33 +69,60 @@ internal class Program
                     obs = Console.ReadLine();
                     pedido = new Pedido(obs,nombre,direccion,telefono,datosReferencia);
 
-                    System.Console.WriteLine("\n### Seleccione un cadete ###");
-                    cadeteria.ListarCadetes();
-                    do
+                    if (pedido != null)
                     {
-                        Console.WriteLine("# Id del cadete: ");
-                    } while (!int.TryParse(Console.ReadLine(),out idCadete) || cadeteria.DevolverCadete(idCadete) == null);
-                    cadeteria.AgregarPedido(pedido, cadeteria.DevolverCadete(idCadete));
+                        cadeteria.AgregarPedido(pedido);
+                        System.Console.WriteLine(">>> PEDIDO AGREGADO <<<");
+                    }
                     break;
 
                 case 2:
-                    System.Console.WriteLine("== Lista de cadetes y sus pedidos pendientes ==");
+
+                    if (cadeteria.CantPedidos() > 0)
+                    {
+                        System.Console.WriteLine("Seleccione el pedido: ");
+                        cadeteria.MostrarPedidosSinAsignar();
+
+                        do
+                        {
+                            Console.WriteLine("# Id del pedido: ");
+                        } while (!int.TryParse(Console.ReadLine(),out idPedido) || cadeteria.DevolverPedido(idPedido) == null); // control de pedido
+
+
+                        System.Console.WriteLine("\n### Seleccione un cadete ###");
+                        cadeteria.ListarCadetes();
+                        do
+                        {
+                            Console.WriteLine("# Id del cadete: ");
+                        } while (!int.TryParse(Console.ReadLine(),out idCadete) || cadeteria.DevolverCadete(idCadete) == null);
+
+                        cadeteria.AsignarCadeteAPedido(idPedido,idCadete);
+                    }
+                    else
+                    {
+                        System.Console.WriteLine("No hay pedidos cargados");
+                    }
+                    break;
+
+                case 3:
+                    System.Console.WriteLine("== Pedidos pendientes ==");
                     cadeteria.MostrarPedidos();
 
                     do
                     {
-                        Console.WriteLine("# Id del pedido: ");
-                    } while (!int.TryParse(Console.ReadLine(),out idPedido) || cadeteria.DevolverCadetePedido(idPedido) == null); // control de pedido
-                    cadeteria.CambiarEstadoPedido(idPedido,cadeteria.DevolverCadetePedido(idPedido));
+                        Console.WriteLine("# Id del pedido pendiente: ");
+                    } while (!int.TryParse(Console.ReadLine(),out idPedido) || !cadeteria.CambiarEstadoPedido(idPedido)); // control de pedido
+
+                    System.Console.WriteLine(">> Pedido actualizado <<");
                     break;
 
-                case 3:
+                case 4:
                     System.Console.WriteLine("== Lista de cadetes y sus pedidos pendientes ==");
                     cadeteria.MostrarPedidos();
                     do
                     {
                         Console.WriteLine("# Id del pedido a reasignar: ");
-                    } while (!int.TryParse(Console.ReadLine(),out idPedido) || cadeteria.DevolverCadetePedido(idPedido) == null); // control de pedido
+                    } while (!int.TryParse(Console.ReadLine(),out idPedido) || cadeteria.DevolverPedido(idPedido) == null); // control de pedido
 
                     System.Console.WriteLine("Seleccione el cadete");
                     cadeteria.ListarCadetes();
@@ -88,7 +132,7 @@ internal class Program
                         Console.WriteLine("# Id del cadete a asignar el pedido: ");
                     } while (!int.TryParse(Console.ReadLine(),out idCadete) || cadeteria.DevolverCadete(idCadete) == null);
 
-                    cadeteria.ReasignarPedido(cadeteria.DevolverPedido(idPedido),cadeteria.DevolverCadetePedido(idPedido),cadeteria.DevolverCadete(idCadete));
+                    cadeteria.ReasignarPedido(cadeteria.DevolverPedido(idPedido), idCadete);
                     break;
             }
     

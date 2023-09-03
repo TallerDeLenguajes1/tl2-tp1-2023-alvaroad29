@@ -1,11 +1,19 @@
 using EspacioCadete;
 using EspacioCadeteria;
+using System.Text.Json;
 
 namespace EspacioAccesoDatos;
 
-public class AccesoDatos
+public abstract class AccesoADatos
 {
-    public Cadeteria cargarCadeteria(string nombreArchivo)
+    public abstract Cadeteria cargarCadeteria(string nombreArchivo);
+    public abstract Cadeteria cargarCadetes(string nombreArchivo, Cadeteria cadeteria);
+
+}
+
+public class AccesoCSV : AccesoADatos
+{
+    public override Cadeteria cargarCadeteria(string nombreArchivo)
     {
         if (File.Exists(nombreArchivo))
         {
@@ -24,7 +32,7 @@ public class AccesoDatos
         }
     }
 
-    public Cadeteria cargarCadetes(string nombreArchivo, Cadeteria cadeteria)
+    public override Cadeteria cargarCadetes(string nombreArchivo, Cadeteria cadeteria)
     {
         if (File.Exists(nombreArchivo))
         {
@@ -48,4 +56,38 @@ public class AccesoDatos
             return null;
         }
     }
+}
+
+public class AccesoJSON : AccesoADatos
+{
+    public override Cadeteria cargarCadeteria(string nombreArchivo)
+    {
+        if (File.Exists(nombreArchivo))
+        {
+            string jsonString = File.ReadAllText(nombreArchivo); //lee el json y lo guardo en un string
+            Cadeteria cadeteria = JsonSerializer.Deserialize<Cadeteria>(jsonString); //<tipo de dato>(variable donde esta la informacion (string)), pasa el string a una lista
+            return cadeteria;
+        }           
+        else
+        {
+            System.Console.WriteLine($"El archivo {nombreArchivo} NO EXISTE");
+            return null;
+        }
+    }
+
+    public override Cadeteria cargarCadetes(string nombreArchivo, Cadeteria cadeteria)
+    {
+        if (File.Exists(nombreArchivo))
+        {
+            string jsonString = File.ReadAllText(nombreArchivo); //lee el json y lo guardo en un string
+            cadeteria.Cadetes = JsonSerializer.Deserialize<List<Cadete>>(jsonString); //accedo a cadetes
+            return cadeteria;
+        }           
+        else
+        {
+            System.Console.WriteLine($"El archivo {nombreArchivo} NO EXISTE");
+            return null;
+        }
+    }
+
 }

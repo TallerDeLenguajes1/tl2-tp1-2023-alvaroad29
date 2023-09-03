@@ -1,0 +1,14 @@
+[
+    {
+        "Id": 1,
+        "Nombre": "nombre1",
+        "Direccion": "dire1",
+        "Telefono": "tel1"
+    },
+    {
+        "Id": 2,
+        "Nombre": "nombre2",
+        "Direccion": "dir2",
+        "Telefono": "tel2"
+	}
+]
