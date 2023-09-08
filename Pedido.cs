@@ -50,8 +50,9 @@ public class Pedido
         }
     }
 
-    public void MostrarPedido()
+    public string MostrarPedido()
     {
-        System.Console.WriteLine($"Numero de pedido: {Nro} -- Observaciones: {Obs} -- Estado: {Estado}");
+        string devolver = $"Numero de pedido: {Nro} -- Observaciones: {Obs} -- Estado: {Estado}";
+        return devolver;
     }
 }

@@ -33,7 +33,6 @@ internal class Program
 
 
 
-        Pedido pedido = null;
         Cadete cadete;
         string nombre,direccion,telefono,datosReferencia,obs;
 
@@ -67,13 +66,9 @@ internal class Program
                     System.Console.WriteLine("### Info pedido ###");
                     System.Console.Write("Observaciones pedido: ");
                     obs = Console.ReadLine();
-                    pedido = new Pedido(obs,nombre,direccion,telefono,datosReferencia);
 
-                    if (pedido != null)
-                    {
-                        cadeteria.AgregarPedido(pedido);
-                        System.Console.WriteLine(">>> PEDIDO AGREGADO <<<");
-                    }
+                    cadeteria.AgregarPedido(obs,nombre,direccion,telefono,datosReferencia);
+                    System.Console.WriteLine(">>> PEDIDO AGREGADO <<<");
                     break;
 
                 case 2:
@@ -81,7 +76,8 @@ internal class Program
                     if (cadeteria.CantPedidos() > 0)
                     {
                         System.Console.WriteLine("Seleccione el pedido: ");
-                        cadeteria.MostrarPedidosSinAsignar();
+
+                        System.Console.WriteLine(cadeteria.MostrarPedidosSinAsignar());
 
                         do
                         {
@@ -90,7 +86,8 @@ internal class Program
 
 
                         System.Console.WriteLine("\n### Seleccione un cadete ###");
-                        cadeteria.ListarCadetes();
+                        System.Console.WriteLine(cadeteria.ListarCadetes());
+
                         do
                         {
                             Console.WriteLine("# Id del cadete: ");
@@ -106,7 +103,7 @@ internal class Program
 
                 case 3:
                     System.Console.WriteLine("== Pedidos pendientes ==");
-                    cadeteria.MostrarPedidos();
+                    System.Console.WriteLine(cadeteria.MostrarPedidos());
 
                     do
                     {

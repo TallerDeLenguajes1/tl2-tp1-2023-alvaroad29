@@ -30,9 +30,10 @@ public class Cadeteria
         Cadetes.Add(cadete);
     }
 
-    public bool AgregarPedido(Pedido pedido)
+    public bool AgregarPedido(string obs,string nombre,string direccion,string telefono,string datosReferencia)
     {
         bool bandera = false;
+        Pedido pedido = new Pedido(obs,nombre,direccion,telefono,datosReferencia);
         if (pedido != null)
         {
             pedidos.Add(pedido);
@@ -53,7 +54,7 @@ public class Cadeteria
         return bandera;
     }
 
-    public void EliminarPedido(int idPedido, Cadete cadete)
+    public void EliminarPedido(int idPedido)
     {
         pedidos.RemoveAll(pedido => pedido.Nro == idPedido);
     }
@@ -74,14 +75,15 @@ public class Cadeteria
     {
         pedido.IdCadete = idCadeteAgregar;
     }
-    public void ListarCadetes()
+    public string ListarCadetes()
     {
-        System.Console.WriteLine("======== INFORMACION CADETES DISPONIBLES =======");
+        
+        string devolver = "";
         foreach (var item in Cadetes)
         {
-            item.mostrarCadete();
+            devolver = devolver + "\n" + item.mostrarCadete();
         }
-        System.Console.WriteLine("\n");
+        return devolver;
     }
 
     public Cadete DevolverCadetePedido(int idPedido) //devuelve el cadete a partir del id del pedido
@@ -104,13 +106,46 @@ public class Cadeteria
         return pedidos.Count();
     }
 
-    public void MostrarPedidos() // muestro los cadetes que tiene por lo menos un pedido y que esten pendiente
+    public int CantPedidos(enumEstado tipo)
     {
+        int cant = 0;
+        switch (tipo)
+        {
+            case enumEstado.pendiente:
+                cant =  pedidos.Count(item => item.Estado == enumEstado.pendiente);
+                break;
+
+            case enumEstado.entregado:
+                cant =  pedidos.Count(item => item.Estado == enumEstado.entregado);
+                break;
+
+            case enumEstado.cancelado:
+                cant =  pedidos.Count(item => item.Estado == enumEstado.cancelado);
+                break;
+        }
+        return cant;
+    }
+
+    public int CantPedidosEntregados(int idCadete)
+    {
+        return pedidos.Count(item => item.Estado == enumEstado.entregado && item.IdCadete == idCadete);
+    }
+
+    public int CantPedidosCancelados(int idCadete)
+    {
+        return pedidos.Count(item => item.Estado == enumEstado.cancelado && item.IdCadete == idCadete);
+    }
+
+    
+
+    public string MostrarPedidos() // muestro los cadetes que tiene por lo menos un pedido y que esten pendiente
+    {
+        string devolver = "";
         foreach (var item in pedidos)
         {
-            item.MostrarPedido();
+            devolver = devolver + "\n" + item.MostrarPedido();
         }
-        System.Console.WriteLine("\n");
+        return devolver;
     }
 
     public List<Informe> GenerarInforme()
@@ -122,30 +157,28 @@ public class Cadeteria
             infoCadete = new Informe();
             infoCadete.NombreCadete = item.Nombre;
             infoCadete.MontoGanado = JornalACobrar(item.Id);
-            infoCadete.EntregadosCadete = CantidadPedidosEntregados(item.Id);
+            infoCadete.EntregadosCadete = CantPedidosEntregados(item.Id);
             info.Add(infoCadete);
         }
         return info;
     }
 
-    public int CantidadPedidosEntregados(int idCadete)
-    {
-        return pedidos.Count(item => item.Estado == enumEstado.entregado && item.IdCadete == idCadete);
-    }
+    
     public int JornalACobrar(int idCadete)
     {
-        return CantidadPedidosEntregados(idCadete) * 500;
+        return CantPedidosEntregados(idCadete) * 500;
     }
 
-    public void MostrarPedidosSinAsignar()
+    public string MostrarPedidosSinAsignar()
     {   
+        string devolver = "";
         foreach (var item in pedidos)
         {
             if (item.IdCadete == 0)
             {
-                item.MostrarPedido();
+                devolver = devolver + "\n" + item.MostrarPedido();
             }
         }
-        System.Console.WriteLine("\n");
+        return devolver;
     }
 }

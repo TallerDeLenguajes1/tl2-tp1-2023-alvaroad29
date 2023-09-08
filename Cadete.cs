@@ -23,10 +23,10 @@ public class Cadete
         Direccion = direccion;
         Telefono = telefono;
     }
-    public void mostrarCadete()
+    public string mostrarCadete()
     {
-        
-        System.Console.WriteLine($"ID: {Id} -- Nombre: {Nombre} --  ");
+        string devolver = $"ID: {Id} -- Nombre: {Nombre} --  ";
+        return devolver;
     }
 
 }
