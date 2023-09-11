@@ -7,7 +7,7 @@ namespace EspacioAccesoDatos;
 public abstract class AccesoADatos
 {
     public abstract Cadeteria cargarCadeteria(string nombreArchivo);
-    public abstract Cadeteria cargarCadetes(string nombreArchivo, Cadeteria cadeteria);
+    public abstract List<Cadete> cargarCadetes(string nombreArchivo);
 
 }
 
@@ -32,12 +32,13 @@ public class AccesoCSV : AccesoADatos
         }
     }
 
-    public override Cadeteria cargarCadetes(string nombreArchivo, Cadeteria cadeteria)
+    public override List<Cadete> cargarCadetes(string nombreArchivo)
     {
         if (File.Exists(nombreArchivo))
         {
             using (StreamReader reader = new StreamReader(nombreArchivo))
             {
+                List<Cadete> cadetes = new List<Cadete>();
                 Cadete cadete;
                 string linea = "";
                 string [] lineaSeparada;
@@ -45,9 +46,9 @@ public class AccesoCSV : AccesoADatos
                 {
                     lineaSeparada = linea.Split(",");
                     cadete = new Cadete(int.Parse(lineaSeparada[0]),lineaSeparada[1],lineaSeparada[2],lineaSeparada[3]);
-                    cadeteria.AgregarCadete(cadete);
+                    cadetes.Add(cadete);
                 }
-                return cadeteria;
+                return cadetes;
             }
         }
         else
@@ -64,6 +65,7 @@ public class AccesoJSON : AccesoADatos
     {
         if (File.Exists(nombreArchivo))
         {
+            
             string jsonString = File.ReadAllText(nombreArchivo); //lee el json y lo guardo en un string
             Cadeteria cadeteria = JsonSerializer.Deserialize<Cadeteria>(jsonString); //<tipo de dato>(variable donde esta la informacion (string)), pasa el string a una lista
             return cadeteria;
@@ -75,13 +77,14 @@ public class AccesoJSON : AccesoADatos
         }
     }
 
-    public override Cadeteria cargarCadetes(string nombreArchivo, Cadeteria cadeteria)
+    public override List<Cadete> cargarCadetes(string nombreArchivo)
     {
         if (File.Exists(nombreArchivo))
         {
+
             string jsonString = File.ReadAllText(nombreArchivo); //lee el json y lo guardo en un string
-            cadeteria.Cadetes = JsonSerializer.Deserialize<List<Cadete>>(jsonString); //accedo a cadetes
-            return cadeteria;
+            List<Cadete> cadetes = JsonSerializer.Deserialize<List<Cadete>>(jsonString); //accedo a cadetes
+            return cadetes;
         }           
         else
         {

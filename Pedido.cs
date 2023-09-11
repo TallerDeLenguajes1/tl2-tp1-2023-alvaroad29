@@ -1,7 +1,7 @@
 using EspacioCliente;
 namespace EspacioPedido;
 
-public enum enumEstado{pendiente,entregado,cancelado};
+public enum enumEstado{noAasignado,pendiente,entregado,cancelado};
 
 public class Pedido
 {
@@ -14,9 +14,9 @@ public class Pedido
     private int idCadete;
 
     // Propiedades
-    public int Nro { get => nro; set => nro = value; }
-    public string Obs { get => obs; set => obs = value; }
-    public enumEstado Estado { get => estado; set => estado = value; }
+    public int Nro { get => nro; }
+    public string Obs { get => obs; }
+    public enumEstado Estado { get => estado; }
     public int IdCadete { get => idCadete; set => idCadete = value; }
 
     // Metodos
@@ -24,30 +24,36 @@ public class Pedido
     private static int numPedido = 1;
     public Pedido(string obs, string nombre, string direccion, string telefono, string datosReferenciaDireccion) // constructor
     {
-        IdCadete = 0; // valor por defecto (sin cadete asignado)
-        Estado = enumEstado.pendiente;
-        Nro = numPedido++;
-        Obs = obs;
+        this.idCadete = 0; // valor por defecto (sin cadete asignado)
+        this.estado = enumEstado.noAasignado;
+        this.nro = numPedido++;
+        this.obs = obs;
         cliente = new Cliente(nombre, direccion, telefono, datosReferenciaDireccion);
     }
-    public void VerDireccionCliente()
+    public string VerDireccionCliente()
     {
-        System.Console.WriteLine(cliente.Direccion);
+        return $"Direccion: {cliente.Direccion} \nReferencias direccion: {cliente.DatosReferenciaDireccion} ";
     }
 
-    public void VerDatosCliente()
-    {
-        System.Console.WriteLine(cliente.Nombre);
-        System.Console.WriteLine(cliente.Telefono);
-        System.Console.WriteLine(cliente.Telefono);
+    public string VerDatosCliente()
+    { 
+        return $"Nombre: {cliente.Nombre} \n Telefono: {cliente.Telefono} ";
     }
 
     public void CambiarEstado()
     {
-        if (Estado != enumEstado.cancelado) //uso Estado o estado?
+        if (estado == enumEstado.noAasignado) 
         {
-            Estado = enumEstado.entregado;
+            estado = enumEstado.pendiente;
+        }else
+        {
+            estado = enumEstado.entregado;
         }
+    }
+
+    public void CancelarPedido()
+    {
+        this.estado = enumEstado.cancelado;
     }
 
     public string MostrarPedido()

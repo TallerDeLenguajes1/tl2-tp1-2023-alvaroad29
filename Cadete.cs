@@ -10,7 +10,7 @@ public class Cadete
     private string telefono;
 
     // Propiedades
-    public int Id { get => id; set => id = value; }
+    public int Id { get => id;}
     public string Nombre { get => nombre; set => nombre = value; }
     public string Direccion { get => direccion; set => direccion = value; }
     public string Telefono { get => telefono; set => telefono = value; }
@@ -18,10 +18,10 @@ public class Cadete
     // Metodos
     public Cadete(int id, string nombre, string direccion, string telefono) //constructor
     {
-        Id = id;
-        Nombre = nombre;
-        Direccion = direccion;
-        Telefono = telefono;
+        this.id = id;
+        this.nombre = nombre;
+        this.direccion = direccion;
+        this.telefono = telefono;
     }
     public string mostrarCadete()
     {

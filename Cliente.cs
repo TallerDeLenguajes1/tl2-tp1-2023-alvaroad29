@@ -8,18 +8,18 @@ public class Cliente
     private string datosReferenciaDireccion;
 
     // Propiedades
-    public string Nombre { get => nombre; set => nombre = value; }
-    public string Direccion { get => direccion; set => direccion = value; }
-    public string Telefono { get => telefono; set => telefono = value; }
-    public string DatosReferenciaDireccion { get => datosReferenciaDireccion; set => datosReferenciaDireccion = value; }
+    public string Nombre { get => nombre;  }
+    public string Direccion { get => direccion;  }
+    public string Telefono { get => telefono; }
+    public string DatosReferenciaDireccion { get => datosReferenciaDireccion; }
 
     // Metodos
     public Cliente(string nombre, string direccion, string telefono, string datosReferenciaDireccion)
     {
-        Nombre = nombre;
-        Direccion = direccion;
-        Telefono = telefono;
-        DatosReferenciaDireccion = datosReferenciaDireccion;
+        this.nombre = nombre;
+        this.direccion = direccion;
+        this.telefono = telefono;
+        this.datosReferenciaDireccion = datosReferenciaDireccion;
     }
 }
 

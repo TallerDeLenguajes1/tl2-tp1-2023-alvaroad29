@@ -6,28 +6,27 @@ namespace EspacioCadeteria;
 public class Cadeteria
 {
     // Atributos
-    private string nombre;
-    private string telefono;
+    private string? nombre;
+    private string? telefono;
     private List<Cadete> cadetes;
     private List<Pedido> pedidos;
 
     // Propiedades
-    public string Nombre { get => nombre; set => nombre = value; }
-    public string Telefono { get => telefono; set => telefono = value; }
-    public List<Cadete> Cadetes { get => cadetes; set => cadetes = value; }
-
+    public string? Nombre { get => nombre; set => nombre = value; }
+    public string? Telefono { get => telefono; set => telefono = value; }
     // Metodos
     public Cadeteria(string nombre, string telefono) // constructor
     {
         pedidos = new List<Pedido>();
-        Cadetes = new List<Cadete>();
+        cadetes = new List<Cadete>();
         Nombre = nombre;
         Telefono = telefono;
     }
 
-    public void AgregarCadete(Cadete cadete)
+    public void AgregarCadete(int id, string nombre, string direccion, string telefono)
     {
-        Cadetes.Add(cadete);
+        Cadete cadete = new Cadete(id, nombre, direccion, telefono);
+        this.cadetes.Add(cadete);
     }
 
     public bool AgregarPedido(string obs,string nombre,string direccion,string telefono,string datosReferencia)
@@ -42,6 +41,11 @@ public class Cadeteria
         return bandera;
     }
 
+    public void CargarCadetes(List<Cadete> cadetes)
+    {
+        this.cadetes = cadetes;
+    }
+
     public bool AsignarCadeteAPedido(int idCadete, int idPedido)
     {
         bool bandera = false;
@@ -49,6 +53,7 @@ public class Cadeteria
         if (pedido != null)
         {
             pedido.IdCadete = idCadete;
+            pedido.CambiarEstado();
             bandera = true;
         }
         return bandera;
@@ -62,7 +67,7 @@ public class Cadeteria
     public bool CambiarEstadoPedido(int idPedido)
     {
         bool bandera = false; 
-        var pedido = pedidos.FirstOrDefault(pedido => pedido.Nro == idPedido);
+        var pedido = DevolverPedido(idPedido);
         if (pedido != null && pedido.Estado == enumEstado.pendiente) //solo cambia pedido que este y 
         {
             pedido.CambiarEstado();
@@ -71,15 +76,22 @@ public class Cadeteria
         return bandera;
     }
 
-    public void ReasignarPedido(Pedido pedido, int idCadeteAgregar)
+    public bool CancelarPedido(int idPedido)
     {
+        var pedido = DevolverPedido(idPedido);
+        pedido.CancelarPedido();
+        return true;
+    }
+    public void ReasignarPedido(int idPedido, int idCadeteAgregar)
+    {
+        var pedido = pedidos.FirstOrDefault(pedido => pedido.Nro == idPedido);
         pedido.IdCadete = idCadeteAgregar;
     }
     public string ListarCadetes()
     {
         
         string devolver = "";
-        foreach (var item in Cadetes)
+        foreach (var item in cadetes)
         {
             devolver = devolver + "\n" + item.mostrarCadete();
         }
@@ -93,7 +105,7 @@ public class Cadeteria
     }
     public Cadete DevolverCadete(int id) // devuelve cadete a parter de su id
     {
-        return Cadetes.SingleOrDefault(cadete => cadete.Id == id);
+        return cadetes.SingleOrDefault(cadete => cadete.Id == id);
     }
 
     public Pedido DevolverPedido(int idPedido) // devuelve pedido a partir de un id
@@ -101,84 +113,54 @@ public class Cadeteria
         return pedidos.SingleOrDefault(pedido => pedido.Nro == idPedido);;
     }
 
-    public int CantPedidos()
+    public int CantPedidos(enumEstado estado)
+    {
+        return pedidos.Count(item => item.Estado == estado);
+    }
+
+    public int TotalPedidos()
     {
         return pedidos.Count();
     }
 
-    public int CantPedidos(enumEstado tipo)
+    public int CantPedidosCadete(int idCadete, enumEstado estado)
     {
-        int cant = 0;
-        switch (tipo)
-        {
-            case enumEstado.pendiente:
-                cant =  pedidos.Count(item => item.Estado == enumEstado.pendiente);
-                break;
-
-            case enumEstado.entregado:
-                cant =  pedidos.Count(item => item.Estado == enumEstado.entregado);
-                break;
-
-            case enumEstado.cancelado:
-                cant =  pedidos.Count(item => item.Estado == enumEstado.cancelado);
-                break;
-        }
-        return cant;
+        return pedidos.Count(item => item.Estado == estado && item.IdCadete == idCadete);
     }
 
-    public int CantPedidosEntregados(int idCadete)
-    {
-        return pedidos.Count(item => item.Estado == enumEstado.entregado && item.IdCadete == idCadete);
-    }
-
-    public int CantPedidosCancelados(int idCadete)
-    {
-        return pedidos.Count(item => item.Estado == enumEstado.cancelado && item.IdCadete == idCadete);
-    }
-
-    
-
-    public string MostrarPedidos() // muestro los cadetes que tiene por lo menos un pedido y que esten pendiente
+    // public int TotalPedidosCadetes(int idCadete)
+    // {
+    //     return
+    // }
+    public string MostrarPedidos(enumEstado estado) // muestro los cadetes que tiene por lo menos un pedido y que esten pendiente
     {
         string devolver = "";
         foreach (var item in pedidos)
         {
-            devolver = devolver + "\n" + item.MostrarPedido();
-        }
-        return devolver;
-    }
-
-    public List<Informe> GenerarInforme()
-    {
-        List<Informe> info = new List<Informe>();
-        Informe infoCadete;
-        foreach (var item in Cadetes)
-        {
-            infoCadete = new Informe();
-            infoCadete.NombreCadete = item.Nombre;
-            infoCadete.MontoGanado = JornalACobrar(item.Id);
-            infoCadete.EntregadosCadete = CantPedidosEntregados(item.Id);
-            info.Add(infoCadete);
-        }
-        return info;
-    }
-
-    
-    public int JornalACobrar(int idCadete)
-    {
-        return CantPedidosEntregados(idCadete) * 500;
-    }
-
-    public string MostrarPedidosSinAsignar()
-    {   
-        string devolver = "";
-        foreach (var item in pedidos)
-        {
-            if (item.IdCadete == 0)
+            if (item.Estado == estado)
             {
                 devolver = devolver + "\n" + item.MostrarPedido();
             }
         }
         return devolver;
+    }
+
+    public int JornalACobrar(int idCadete)
+    {
+        return CantPedidosCadete(idCadete,enumEstado.entregado) * 500;
+    }
+    public List<Informe> GenerarInforme()
+    {
+        List<Informe> info = new List<Informe>();
+        Informe infoCadete;
+        foreach (var item in cadetes)
+        {
+            infoCadete = new Informe();
+            infoCadete.NombreCadete = item.Nombre;
+            infoCadete.MontoGanado = JornalACobrar(item.Id);
+            infoCadete.EntregadosCadete = CantPedidosCadete(item.Id, enumEstado.entregado);
+            info.Add(infoCadete);
+        }
+        return info;
     }
 }

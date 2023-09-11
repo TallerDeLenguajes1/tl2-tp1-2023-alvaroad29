@@ -22,12 +22,12 @@ internal class Program
             case 1:
                 cargarDatos = new AccesoCSV(); // para cargar los datos
                 cadeteria = cargarDatos.cargarCadeteria("infoCadeteria.csv"); // cargo datos sobre cadeteria
-                cadeteria = cargarDatos.cargarCadetes("infoCadetes.csv",cadeteria); // cargo los datos de cadetes
+                cadeteria.CargarCadetes(cargarDatos.cargarCadetes("infoCadetes.csv")); // cargo los datos de cadetes
                 break;
             case 2:
                 cargarDatos = new AccesoJSON(); 
                 cadeteria = cargarDatos.cargarCadeteria("infoCadeteria.json"); 
-                cadeteria = cargarDatos.cargarCadetes("infoCadetes.json",cadeteria); 
+                cadeteria.CargarCadetes(cargarDatos.cargarCadetes("infoCadetes.json")); 
                 break;
         }
 
@@ -73,16 +73,16 @@ internal class Program
 
                 case 2:
 
-                    if (cadeteria.CantPedidos() > 0)
+                    if (cadeteria.CantPedidos(enumEstado.noAasignado) > 0)
                     {
                         System.Console.WriteLine("Seleccione el pedido: ");
 
-                        System.Console.WriteLine(cadeteria.MostrarPedidosSinAsignar());
+                        System.Console.WriteLine(cadeteria.MostrarPedidos(enumEstado.noAasignado));
 
                         do
                         {
                             Console.WriteLine("# Id del pedido: ");
-                        } while (!int.TryParse(Console.ReadLine(),out idPedido) || cadeteria.DevolverPedido(idPedido) == null); // control de pedido
+                        } while (!int.TryParse(Console.ReadLine(),out idPedido) || cadeteria.DevolverPedido(idPedido) == null || cadeteria.DevolverPedido(idPedido).Estado != enumEstado.noAasignado); // control de pedido, que exista y su estado sea noAsignado
 
 
                         System.Console.WriteLine("\n### Seleccione un cadete ###");
@@ -102,34 +102,53 @@ internal class Program
                     break;
 
                 case 3:
-                    System.Console.WriteLine("== Pedidos pendientes ==");
-                    System.Console.WriteLine(cadeteria.MostrarPedidos());
-
-                    do
+                    if (cadeteria.CantPedidos(enumEstado.pendiente) > 0 || cadeteria.CantPedidos(enumEstado.noAasignado) > 0)
                     {
-                        Console.WriteLine("# Id del pedido pendiente: ");
-                    } while (!int.TryParse(Console.ReadLine(),out idPedido) || !cadeteria.CambiarEstadoPedido(idPedido)); // control de pedido
+                        System.Console.WriteLine("== Pedidos pendientes o no asignados ==");
+                        System.Console.WriteLine(cadeteria.MostrarPedidos(enumEstado.pendiente));
+                        System.Console.WriteLine(cadeteria.MostrarPedidos(enumEstado.noAasignado));
 
-                    System.Console.WriteLine(">> Pedido actualizado <<");
+                        do
+                        {
+                            Console.WriteLine("# Id del pedido: ");
+                        } while (!int.TryParse(Console.ReadLine(),out idPedido) || cadeteria.DevolverPedido(idPedido) == null || (cadeteria.DevolverPedido(idPedido).Estado != enumEstado.pendiente && cadeteria.DevolverPedido(idPedido).Estado != enumEstado.noAasignado)); // control de pedido
+
+                        if (cadeteria.DevolverPedido(idPedido).Estado == enumEstado.pendiente)
+                        {
+                            cadeteria.CambiarEstadoPedido(idPedido);
+                        }else
+                        {
+                            cadeteria.CancelarPedido(idPedido);
+                        }
+
+                        System.Console.WriteLine(">> Pedido actualizado <<");
+                    }
                     break;
 
                 case 4:
-                    System.Console.WriteLine("== Lista de cadetes y sus pedidos pendientes ==");
-                    cadeteria.MostrarPedidos();
-                    do
+                    if (cadeteria.CantPedidos(enumEstado.pendiente) > 0 )
                     {
-                        Console.WriteLine("# Id del pedido a reasignar: ");
-                    } while (!int.TryParse(Console.ReadLine(),out idPedido) || cadeteria.DevolverPedido(idPedido) == null); // control de pedido
+                        System.Console.WriteLine("== LISTA DE PEDIDOS PENDIENTES ==");
+                        System.Console.WriteLine(cadeteria.MostrarPedidos(enumEstado.pendiente));
+                        do
+                        {
+                            Console.WriteLine("# Id del pedido a reasignar: ");
+                        } while (!int.TryParse(Console.ReadLine(),out idPedido) || cadeteria.DevolverPedido(idPedido) == null || cadeteria.DevolverPedido(idPedido).Estado != enumEstado.pendiente); // control de pedido
 
-                    System.Console.WriteLine("Seleccione el cadete");
-                    cadeteria.ListarCadetes();
+                        System.Console.WriteLine("Seleccione el cadete");
+                        System.Console.WriteLine(cadeteria.ListarCadetes());
 
-                    do
+                        do
+                        {
+                            Console.WriteLine("# Id del cadete a asignar el pedido: ");
+                        } while (!int.TryParse(Console.ReadLine(),out idCadete) || cadeteria.DevolverCadete(idCadete) == null || cadeteria.DevolverCadetePedido(idPedido).Id == idCadete);
+
+                        cadeteria.ReasignarPedido(idPedido, idCadete);
+                    }
+                    else
                     {
-                        Console.WriteLine("# Id del cadete a asignar el pedido: ");
-                    } while (!int.TryParse(Console.ReadLine(),out idCadete) || cadeteria.DevolverCadete(idCadete) == null);
-
-                    cadeteria.ReasignarPedido(cadeteria.DevolverPedido(idPedido), idCadete);
+                        System.Console.WriteLine("No hay pedidos pendientes para reasignar");
+                    }
                     break;
             }
     
